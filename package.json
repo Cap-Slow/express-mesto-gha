@@ -1,0 +1,26 @@
+{
+  "name": "express-mesto-gha",
+  "version": "1.0.0",
+  "description": "[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cap-Slow/express-mesto-gha.git"
+  },
+  "keywords": [],
+  "author": "d.liadov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cap-Slow/express-mesto-gha/issues"
+  },
+  "homepage": "https://github.com/Cap-Slow/express-mesto-gha#readme",
+  "devDependencies": {
+    "eslint": "^8.42.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5"
+  }
+}
