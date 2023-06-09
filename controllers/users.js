@@ -5,6 +5,7 @@ const {
   SERVER_ERROR_CODE,
   SERVER_ERROR_MESSAGE,
   NOT_FOUND_USERID,
+  BAD_REQUEST_USER_MESSAGE,
 } = require('../utils/constants');
 
 function getUsers(req, res) {
@@ -27,7 +28,13 @@ function getUserById(req, res) {
       }
       res.status(200).send(user);
     })
-    .catch(() => {
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_CODE).send({
+          message: BAD_REQUEST_USER_MESSAGE,
+        });
+        return;
+      }
       res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
     });
 }

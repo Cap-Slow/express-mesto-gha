@@ -4,6 +4,7 @@ const {
   NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
   SERVER_ERROR_MESSAGE,
+  BAD_REQUEST_CARD_MESSAGE,
   NOT_FOUND_CARDID,
 } = require('../utils/constants');
 
@@ -47,7 +48,13 @@ function deleteCard(req, res) {
       }
       res.status(200).send({ message: 'Карточка удалена' });
     })
-    .catch(() => {
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_CODE).send({
+          message: BAD_REQUEST_CARD_MESSAGE,
+        });
+        return;
+      }
       res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
     });
 }
@@ -68,11 +75,9 @@ function addCardLike(req, res) {
       res.status(200).send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(BAD_REQUEST_CODE).send({
-          message: `${Object.values(err.errors)
-            .map((error) => error.message)
-            .join(', ')}`,
+          message: BAD_REQUEST_CARD_MESSAGE,
         });
         return;
       }
@@ -96,11 +101,9 @@ function removeCardLike(req, res) {
       res.status(200).send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(BAD_REQUEST_CODE).send({
-          message: `${Object.values(err.errors)
-            .map((error) => error.message)
-            .join(', ')}`,
+          message: BAD_REQUEST_CARD_MESSAGE,
         });
         return;
       }
