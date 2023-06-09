@@ -1,10 +1,19 @@
 const User = require('../models/user');
+const {
+  BAD_REQUEST_CODE,
+  NOT_FOUND_CODE,
+  SERVER_ERROR_CODE,
+  SERVER_ERROR_MESSAGE,
+  NOT_FOUND_USERID,
+} = require('../utils/constants');
 
 function getUsers(req, res) {
   return User.find({})
     .select('-__v')
     .then((users) => res.send(users))
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch(() => {
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 
 function getUserById(req, res) {
@@ -13,12 +22,14 @@ function getUserById(req, res) {
     .select('-__v')
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Нет пользователя с таким id' });
+        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
         return;
       }
       res.status(200).send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch(() => {
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 
 function createUser(req, res) {
@@ -29,7 +40,17 @@ function createUser(req, res) {
       delete userWithoutVersion.__v;
       return res.status(201).send(userWithoutVersion);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST_CODE).send({
+          message: `${Object.values(err.errors)
+            .map((error) => error.message)
+            .join(', ')}`,
+        });
+        return;
+      }
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 
 function updateProfile(req, res) {
@@ -42,12 +63,22 @@ function updateProfile(req, res) {
     .select('-__v')
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Нет пользователя с таким id' });
+        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
         return;
       }
       res.status(200).send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST_CODE).send({
+          message: `${Object.values(err.errors)
+            .map((error) => error.message)
+            .join(', ')}`,
+        });
+        return;
+      }
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 
 function updateAvatar(req, res) {
@@ -60,12 +91,22 @@ function updateAvatar(req, res) {
     .select('-__v')
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Нет пользователя с таким id' });
+        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
         return;
       }
       res.status(200).send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST_CODE).send({
+          message: `${Object.values(err.errors)
+            .map((error) => error.message)
+            .join(', ')}`,
+        });
+        return;
+      }
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 
 module.exports = {
