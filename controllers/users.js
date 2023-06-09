@@ -26,8 +26,26 @@ function createUser(req, res) {
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
 
+function updateProfile(req, res) {
+  const { name, about } = req.body;
+  return User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    { new: true, runValidators: true }
+  )
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Нет пользователя с таким id' });
+        return;
+      }
+      return res.status(200).send(user);
+    })
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+}
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
+  updateProfile,
 };
