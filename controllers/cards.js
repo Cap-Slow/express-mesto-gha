@@ -2,6 +2,7 @@ const Card = require('../models/card');
 
 function getCards(req, res) {
   return Card.find({})
+    .select('-__v')
     .then((cards) => res.status(200).send(cards))
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
@@ -9,7 +10,12 @@ function getCards(req, res) {
 function createCard(req, res) {
   const { name, link } = req.body;
   return Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.status(201).send(card))
+
+    .then((card) => {
+      const cardWithoutVersion = card.toObject();
+      delete cardWithoutVersion.__v;
+      return res.status(201).send(cardWithoutVersion);
+    })
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
 
@@ -33,6 +39,7 @@ function addCardLike(req, res) {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
+    .select('-__v')
     .then((card) => {
       if (!card) {
         res.status(404).send({ message: 'Нет карточки с таким id' });
@@ -50,6 +57,7 @@ function removeCardLike(req, res) {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
+    .select('-__v')
     .then((card) => {
       if (!card) {
         res.status(404).send({ message: 'Нет карточки с таким id' });
