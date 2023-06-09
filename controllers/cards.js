@@ -25,3 +25,9 @@ function deleteCard(req, res) {
     })
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
+
+module.exports = {
+  getCards,
+  createCard,
+  deleteCard,
+};
