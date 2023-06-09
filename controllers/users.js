@@ -16,7 +16,7 @@ function getUserById(req, res) {
         res.status(404).send({ message: 'Нет пользователя с таким id' });
         return;
       }
-      return res.status(200).send(user);
+      res.status(200).send(user);
     })
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
@@ -45,7 +45,7 @@ function updateProfile(req, res) {
         res.status(404).send({ message: 'Нет пользователя с таким id' });
         return;
       }
-      return res.status(200).send(user);
+      res.status(200).send(user);
     })
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
@@ -63,7 +63,7 @@ function updateAvatar(req, res) {
         res.status(404).send({ message: 'Нет пользователя с таким id' });
         return;
       }
-      return res.status(200).send(user);
+      res.status(200).send(user);
     })
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }

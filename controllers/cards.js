@@ -6,7 +6,6 @@ function getCards(req, res) {
     .then((cards) => res.status(200).send(cards))
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
-
 function createCard(req, res) {
   const { name, link } = req.body;
   return Card.create({ name, link, owner: req.user._id })
@@ -27,7 +26,7 @@ function deleteCard(req, res) {
         res.status(404).send({ message: 'Нет карточки с таким id' });
         return;
       }
-      return res.status(200).send({ message: 'Карточка удалена' });
+      res.status(200).send({ message: 'Карточка удалена' });
     })
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
@@ -45,7 +44,7 @@ function addCardLike(req, res) {
         res.status(404).send({ message: 'Нет карточки с таким id' });
         return;
       }
-      return res.status(200).send(card);
+      res.status(200).send(card);
     })
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
@@ -63,7 +62,7 @@ function removeCardLike(req, res) {
         res.status(404).send({ message: 'Нет карточки с таким id' });
         return;
       }
-      return res.status(200).send(card);
+      res.status(200).send(card);
     })
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
