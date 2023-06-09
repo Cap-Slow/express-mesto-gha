@@ -26,8 +26,44 @@ function deleteCard(req, res) {
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
 
+function addCardLike(req, res) {
+  const { cardId } = req.params;
+  return Card.findByIdAndUpdate(
+    cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true }
+  )
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Нет карточки с таким id' });
+        return;
+      }
+      return res.status(200).send(card);
+    })
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+}
+
+function removeCardLike(req, res) {
+  const { cardId } = req.params;
+  return Card.findByIdAndUpdate(
+    cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true }
+  )
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Нет карточки с таким id' });
+        return;
+      }
+      return res.status(200).send(card);
+    })
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+}
+
 module.exports = {
   getCards,
   createCard,
   deleteCard,
+  addCardLike,
+  removeCardLike,
 };
