@@ -1,10 +1,19 @@
 const Card = require('../models/card');
+const {
+  BAD_REQUEST_CODE,
+  NOT_FOUND_CODE,
+  SERVER_ERROR_CODE,
+  SERVER_ERROR_MESSAGE,
+  NOT_FOUND_CARDID,
+} = require('../utils/constants');
 
 function getCards(req, res) {
   return Card.find({})
     .select('-__v')
     .then((cards) => res.status(200).send(cards))
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch(() => {
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 function createCard(req, res) {
   const { name, link } = req.body;
@@ -15,7 +24,17 @@ function createCard(req, res) {
       delete cardWithoutVersion.__v;
       return res.status(201).send(cardWithoutVersion);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST_CODE).send({
+          message: `${Object.values(err.errors)
+            .map((error) => error.message)
+            .join(', ')}`,
+        });
+        return;
+      }
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 
 function deleteCard(req, res) {
@@ -23,12 +42,14 @@ function deleteCard(req, res) {
   return Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Нет карточки с таким id' });
+        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
         return;
       }
       res.status(200).send({ message: 'Карточка удалена' });
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch(() => {
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 
 function addCardLike(req, res) {
@@ -41,12 +62,22 @@ function addCardLike(req, res) {
     .select('-__v')
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Нет карточки с таким id' });
+        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
         return;
       }
       res.status(200).send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST_CODE).send({
+          message: `${Object.values(err.errors)
+            .map((error) => error.message)
+            .join(', ')}`,
+        });
+        return;
+      }
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 
 function removeCardLike(req, res) {
@@ -59,12 +90,22 @@ function removeCardLike(req, res) {
     .select('-__v')
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Нет карточки с таким id' });
+        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
         return;
       }
       res.status(200).send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST_CODE).send({
+          message: `${Object.values(err.errors)
+            .map((error) => error.message)
+            .join(', ')}`,
+        });
+        return;
+      }
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
 }
 
 module.exports = {
