@@ -7,8 +7,8 @@ function getUsers(req, res) {
 }
 
 function getUserById(req, res) {
-  const { Id } = req.params;
-  return User.findById(Id)
+  const { userId } = req.params;
+  return User.findById(userId)
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Нет пользователя с таким id' });
@@ -25,3 +25,9 @@ function createUser(req, res) {
     .then((user) => res.status(201).send(user))
     .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 }
+
+module.exports = {
+  getUsers,
+  getUserById,
+  createUser,
+};
