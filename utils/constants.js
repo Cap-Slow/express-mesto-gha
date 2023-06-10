@@ -1,3 +1,5 @@
+const OK_CODE = 200;
+const CREATED_CODE = 201;
 const BAD_REQUEST_CODE = 400;
 const NOT_FOUND_CODE = 404;
 const SERVER_ERROR_CODE = 500;
@@ -8,6 +10,8 @@ const NOT_FOUND_USERID = 'Пользователь с указанным id не
 const NOT_FOUND_CARDID = 'Карточка с указанным id не найдена.';
 const NOT_FOUND_ROUTE = 'Запрашиваемый ресурс не найден';
 module.exports = {
+  OK_CODE,
+  CREATED_CODE,
   BAD_REQUEST_CODE,
   NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
