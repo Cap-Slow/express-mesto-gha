@@ -62,67 +62,56 @@ function createUser(req, res) {
       res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
     });
 }
-
-function updateProfile(req, res) {
-  const { name, about } = req.body;
-  return User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    { new: true, runValidators: true }
-  )
-    .select('-__v')
-    .then((user) => {
-      if (!user) {
-        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
-        return;
-      }
-      res.status(OK_CODE).send(user);
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(BAD_REQUEST_CODE).send({
-          message: `${Object.values(err.errors)
-            .map((error) => error.message)
-            .join(', ')}`,
-        });
-        return;
-      }
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
+function updateDataDecorator(updateFunction) {
+  return function (req, res) {
+    return updateFunction(req, res)
+      .select('-__v')
+      .then((user) => {
+        if (!user) {
+          res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
+          return;
+        }
+        res.status(OK_CODE).send(user);
+      })
+      .catch((err) => {
+        if (err instanceof mongoose.Error.ValidationError) {
+          res.status(BAD_REQUEST_CODE).send({
+            message: `${Object.values(err.errors)
+              .map((error) => error.message)
+              .join(', ')}`,
+          });
+          return;
+        }
+        res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+      });
+  };
 }
 
-function updateAvatar(req, res) {
+function updateAvatar(req) {
   const { avatar } = req.body;
   return User.findByIdAndUpdate(
     req.user._id,
     { avatar },
     { new: true, runValidators: true }
-  )
-    .select('-__v')
-    .then((user) => {
-      if (!user) {
-        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
-        return;
-      }
-      res.status(OK_CODE).send(user);
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(BAD_REQUEST_CODE).send({
-          message: `${Object.values(err.errors)
-            .map((error) => error.message)
-            .join(', ')}`,
-        });
-        return;
-      }
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
+  );
 }
+
+function updateProfile(req) {
+  const { name, about } = req.body;
+  return User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    { new: true, runValidators: true }
+  );
+}
+
+const decoratedUpdateAvatar = updateDataDecorator(updateAvatar);
+const decoratedUpdateProfile = updateDataDecorator(updateProfile);
 
 module.exports = {
   getUsers,
   getUserById,
   createUser,
-  updateProfile,
-  updateAvatar,
+  decoratedUpdateAvatar,
+  decoratedUpdateProfile,
 };

@@ -3,14 +3,14 @@ const {
   getUsers,
   getUserById,
   createUser,
-  updateProfile,
-  updateAvatar,
+  decoratedUpdateAvatar,
+  decoratedUpdateProfile,
 } = require('../controllers/users');
 
 userRoutes.get('', getUsers);
 userRoutes.get('/:userId', getUserById);
 userRoutes.post('', createUser);
-userRoutes.patch('/me', updateProfile);
-userRoutes.patch('/me/avatar', updateAvatar);
+userRoutes.patch('/me', decoratedUpdateProfile);
+userRoutes.patch('/me/avatar', decoratedUpdateAvatar);
 
 module.exports = userRoutes;
