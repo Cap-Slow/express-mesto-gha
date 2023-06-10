@@ -1,5 +1,7 @@
 const User = require('../models/user');
 const {
+  OK_CODE,
+  CREATED_CODE,
   BAD_REQUEST_CODE,
   NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
@@ -26,7 +28,7 @@ function getUserById(req, res) {
         res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
         return;
       }
-      res.status(200).send(user);
+      res.status(OK_CODE).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -45,7 +47,7 @@ function createUser(req, res) {
     .then((user) => {
       const userWithoutVersion = user.toObject();
       delete userWithoutVersion.__v;
-      return res.status(201).send(userWithoutVersion);
+      return res.status(CREATED_CODE).send(userWithoutVersion);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -73,7 +75,7 @@ function updateProfile(req, res) {
         res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
         return;
       }
-      res.status(200).send(user);
+      res.status(OK_CODE).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -101,7 +103,7 @@ function updateAvatar(req, res) {
         res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
         return;
       }
-      res.status(200).send(user);
+      res.status(OK_CODE).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
