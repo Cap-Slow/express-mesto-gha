@@ -63,7 +63,7 @@ function createUser(req, res) {
     });
 }
 function updateDataDecorator(updateFunction) {
-  return function (req, res) {
+  return function handleErrors(req, res) {
     return updateFunction(req, res)
       .select('-__v')
       .then((user) => {
