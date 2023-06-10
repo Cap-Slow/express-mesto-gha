@@ -1,5 +1,7 @@
 const Card = require('../models/card');
 const {
+  OK_CODE,
+  CREATED_CODE,
   BAD_REQUEST_CODE,
   NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
@@ -11,7 +13,7 @@ const {
 function getCards(req, res) {
   return Card.find({})
     .select('-__v')
-    .then((cards) => res.status(200).send(cards))
+    .then((cards) => res.status(OK_CODE).send(cards))
     .catch(() => {
       res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
     });
@@ -23,7 +25,7 @@ function createCard(req, res) {
     .then((card) => {
       const cardWithoutVersion = card.toObject();
       delete cardWithoutVersion.__v;
-      return res.status(201).send(cardWithoutVersion);
+      return res.status(CREATED_CODE).send(cardWithoutVersion);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -46,7 +48,7 @@ function deleteCard(req, res) {
         res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
         return;
       }
-      res.status(200).send({ message: 'Карточка удалена' });
+      res.status(OK_CODE).send({ message: 'Карточка удалена' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -72,7 +74,7 @@ function addCardLike(req, res) {
         res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
         return;
       }
-      res.status(200).send(card);
+      res.status(OK_CODE).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -98,7 +100,7 @@ function removeCardLike(req, res) {
         res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
         return;
       }
-      res.status(200).send(card);
+      res.status(OK_CODE).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
