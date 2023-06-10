@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
+
 const {
   OK_CODE,
   CREATED_CODE,
@@ -28,7 +30,7 @@ function createCard(req, res) {
       return res.status(CREATED_CODE).send(cardWithoutVersion);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(BAD_REQUEST_CODE).send({
           message: `${Object.values(err.errors)
             .map((error) => error.message)
@@ -51,7 +53,7 @@ function deleteCard(req, res) {
       res.status(OK_CODE).send({ message: 'Карточка удалена' });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_CODE).send({
           message: BAD_REQUEST_CARD_MESSAGE,
         });
@@ -77,7 +79,7 @@ function addCardLike(req, res) {
       res.status(OK_CODE).send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_CODE).send({
           message: BAD_REQUEST_CARD_MESSAGE,
         });
@@ -103,7 +105,7 @@ function removeCardLike(req, res) {
       res.status(OK_CODE).send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_CODE).send({
           message: BAD_REQUEST_CARD_MESSAGE,
         });

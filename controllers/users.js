@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user');
 const {
   OK_CODE,
@@ -31,7 +32,7 @@ function getUserById(req, res) {
       res.status(OK_CODE).send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(BAD_REQUEST_CODE).send({
           message: BAD_REQUEST_USER_MESSAGE,
         });
@@ -50,7 +51,7 @@ function createUser(req, res) {
       return res.status(CREATED_CODE).send(userWithoutVersion);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(BAD_REQUEST_CODE).send({
           message: `${Object.values(err.errors)
             .map((error) => error.message)
@@ -78,7 +79,7 @@ function updateProfile(req, res) {
       res.status(OK_CODE).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(BAD_REQUEST_CODE).send({
           message: `${Object.values(err.errors)
             .map((error) => error.message)
@@ -106,7 +107,7 @@ function updateAvatar(req, res) {
       res.status(OK_CODE).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(BAD_REQUEST_CODE).send({
           message: `${Object.values(err.errors)
             .map((error) => error.message)
