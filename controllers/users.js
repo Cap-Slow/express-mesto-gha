@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+const jwt = require('jsonwebtoken');
 const {
   OK_CODE,
   CREATED_CODE,
@@ -12,8 +13,8 @@ const {
   NOT_FOUND_USERID,
   BAD_REQUEST_USER_MESSAGE,
   WRONG_CREDENTIALS_MESSAGE,
+  JWT_SECRET,
 } = require('../utils/constants');
-const { generateToken } = require('../utils/jwt');
 
 function getUsers(req, res) {
   return User.find({})
@@ -25,7 +26,7 @@ function getUsers(req, res) {
 }
 
 function getUserById(req, res) {
-  const { userId } = req.params;
+  const userId = req.user._id;
   return User.findById(userId)
     .select('-__v')
     .then((user) => {
@@ -120,6 +121,28 @@ function updateProfile(req) {
 const decoratedUpdateAvatar = updateDataDecorator(updateAvatar);
 const decoratedUpdateProfile = updateDataDecorator(updateProfile);
 
+function getUserInfo(req, res) {
+  const { userId } = req.user._id;
+  return User.findById({ userId })
+    .select('-__v')
+    .then((user) => {
+      if (!user) {
+        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
+        return;
+      }
+      res.status(OK_CODE).send(user);
+    })
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(BAD_REQUEST_CODE).send({
+          message: BAD_REQUEST_USER_MESSAGE,
+        });
+        return;
+      }
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
+}
+
 function login(req, res) {
   const { email, password } = req.body;
 
@@ -138,7 +161,10 @@ function login(req, res) {
             .send({ message: WRONG_CREDENTIALS_MESSAGE });
           return;
         }
-        const token = generateToken(user._id);
+        const _id = user._id;
+        const token = jwt.sign({ _id }, JWT_SECRET, {
+          expiresIn: '7d',
+        });
         res
           .cookie('jwt', token, {
             maxAge: 3600000 * 24 * 7,
@@ -160,4 +186,5 @@ module.exports = {
   decoratedUpdateAvatar,
   decoratedUpdateProfile,
   login,
+  getUserInfo,
 };
