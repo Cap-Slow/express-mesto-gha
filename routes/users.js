@@ -7,12 +7,13 @@ const {
   decoratedUpdateProfile,
   login,
 } = require('../controllers/users');
+const auth = require('../middlewares/auth');
 
-userRoutes.get('/users', getUsers);
-userRoutes.get('/users/:userId', getUserById);
 userRoutes.post('/signup', createUser);
 userRoutes.post('/signin', login);
-userRoutes.patch('/users/me', decoratedUpdateProfile);
-userRoutes.patch('/users/me/avatar', decoratedUpdateAvatar);
+userRoutes.get('/users', auth, getUsers);
+userRoutes.get('/users/:userId', auth, getUserById);
+userRoutes.patch('/users/me', auth, decoratedUpdateProfile);
+userRoutes.patch('/users/me/avatar', auth, decoratedUpdateAvatar);
 
 module.exports = userRoutes;
