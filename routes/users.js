@@ -5,12 +5,14 @@ const {
   createUser,
   decoratedUpdateAvatar,
   decoratedUpdateProfile,
+  login,
 } = require('../controllers/users');
 
-userRoutes.get('', getUsers);
-userRoutes.get('/:userId', getUserById);
-userRoutes.post('', createUser);
-userRoutes.patch('/me', decoratedUpdateProfile);
-userRoutes.patch('/me/avatar', decoratedUpdateAvatar);
+userRoutes.get('/users', getUsers);
+userRoutes.get('/users/:userId', getUserById);
+userRoutes.post('/signup', createUser);
+userRoutes.post('/signin', login);
+userRoutes.patch('/users/me', decoratedUpdateProfile);
+userRoutes.patch('/users/me/avatar', decoratedUpdateAvatar);
 
 module.exports = userRoutes;
