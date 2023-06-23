@@ -7,10 +7,13 @@ const {
   BAD_REQUEST_CODE,
   NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
+  FORBIDDEN_CODE,
   SERVER_ERROR_MESSAGE,
   BAD_REQUEST_CARD_MESSAGE,
   NOT_FOUND_CARDID,
+  FORBIDDEN_CARD_DELETE_MESSAGE,
 } = require('../utils/constants');
+const card = require('../models/card');
 
 function getCards(req, res) {
   return Card.find({})
@@ -42,8 +45,25 @@ function createCard(req, res) {
     });
 }
 
-function deleteCard(req, res) {
+async function deleteCard(req, res) {
   const { cardId } = req.params;
+  const cardOwner = await Card.findById(cardId)
+    .then((card) => {
+      if (!card) {
+        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
+        return;
+      }
+      return card.owner;
+    })
+    .catch(() => {
+      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+    });
+  if (cardOwner != req.user._id) {
+    res.status(FORBIDDEN_CODE).send({
+      message: FORBIDDEN_CARD_DELETE_MESSAGE,
+    });
+    return;
+  }
   return Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
@@ -63,11 +83,11 @@ function deleteCard(req, res) {
     });
 }
 
-function addCardLike(req, res) {
+async function addCardLike(req, res) {
   const { cardId } = req.params;
   return Card.findByIdAndUpdate(
     cardId,
-    { $addToSet: { likes: req.user._id } },
+    { $addToSet: { likes: req.params._id } },
     { new: true }
   )
     .select('-__v')
