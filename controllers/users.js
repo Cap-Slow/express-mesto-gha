@@ -5,12 +5,15 @@ const {
   OK_CODE,
   CREATED_CODE,
   BAD_REQUEST_CODE,
+  UNAUTHORIZED_CODE,
   NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
   SERVER_ERROR_MESSAGE,
   NOT_FOUND_USERID,
   BAD_REQUEST_USER_MESSAGE,
+  WRONG_CREDENTIALS_MESSAGE,
 } = require('../utils/constants');
+const { generateToken } = require('../utils/jwt');
 
 function getUsers(req, res) {
   return User.find({})
@@ -117,10 +120,44 @@ function updateProfile(req) {
 const decoratedUpdateAvatar = updateDataDecorator(updateAvatar);
 const decoratedUpdateProfile = updateDataDecorator(updateProfile);
 
+function login(req, res) {
+  const { email, password } = req.body;
+
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        res
+          .status(UNAUTHORIZED_CODE)
+          .send({ message: WRONG_CREDENTIALS_MESSAGE });
+        return;
+      }
+      bcrypt.compare(password, user.password, function (err, isPasswordMatch) {
+        if (!isPasswordMatch) {
+          res
+            .status(UNAUTHORIZED_CODE)
+            .send({ message: WRONG_CREDENTIALS_MESSAGE });
+          return;
+        }
+        const token = generateToken(user._id);
+        res
+          .cookie('jwt', token, {
+            maxAge: 3600000 * 24 * 7,
+            httpOnly: true,
+            sameSite: true,
+          })
+          .end();
+      });
+    })
+    .catch((err) => {
+      res.status(UNAUTHORIZED_CODE).send({ message: err.message });
+    });
+}
+
 module.exports = {
   getUsers,
   getUserById,
   createUser,
   decoratedUpdateAvatar,
   decoratedUpdateProfile,
+  login,
 };
