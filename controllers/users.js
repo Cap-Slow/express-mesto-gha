@@ -122,7 +122,7 @@ const decoratedUpdateAvatar = updateDataDecorator(updateAvatar);
 const decoratedUpdateProfile = updateDataDecorator(updateProfile);
 
 function getUserInfo(req, res) {
-  const { userId } = req.user._id;
+  const { userId } = req.params;
   return User.findById({ userId })
     .select('-__v')
     .then((user) => {
@@ -147,6 +147,7 @@ function login(req, res) {
   const { email, password } = req.body;
 
   User.findOne({ email })
+    .select('+password')
     .then((user) => {
       if (!user) {
         res
