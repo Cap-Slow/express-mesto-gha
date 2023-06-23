@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const {
   OK_CODE,
@@ -43,24 +44,32 @@ function getUserById(req, res) {
 }
 
 function createUser(req, res) {
-  const { name, about, avatar } = req.body;
-  return User.create({ name, about, avatar })
-    .then((user) => {
-      const userWithoutVersion = user.toObject();
-      delete userWithoutVersion.__v;
-      return res.status(CREATED_CODE).send(userWithoutVersion);
+  const { name, about, avatar, email } = req.body;
+  bcrypt.hash(req.body.password, 10).then((hash) => {
+    return User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(BAD_REQUEST_CODE).send({
-          message: `${Object.values(err.errors)
-            .map((error) => error.message)
-            .join(', ')}`,
-        });
-        return;
-      }
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
+      .then((user) => {
+        const userWithoutVersion = user.toObject();
+        delete userWithoutVersion.__v;
+        return res.status(CREATED_CODE).send(userWithoutVersion);
+      })
+      .catch((err) => {
+        if (err instanceof mongoose.Error.ValidationError) {
+          res.status(BAD_REQUEST_CODE).send({
+            message: `${Object.values(err.errors)
+              .map((error) => error.message)
+              .join(', ')}`,
+          });
+          return;
+        }
+        res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+      });
+  });
 }
 function updateDataDecorator(updateFunction) {
   return function handleErrors(req, res) {
