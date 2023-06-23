@@ -19,7 +19,7 @@ module.exports = (req, res, next) => {
       res.status(UNAUTHORIZED_CODE).send({ message: UNAUTHORIZED_MESSAGE });
       return;
     }
-    req.user._id = decoded._id;
+    req.user = { _id: decoded._id };
   });
   next();
 };
