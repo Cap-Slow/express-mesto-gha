@@ -10,14 +10,11 @@ function generateToken(_id) {
 }
 
 function verifyToken(token) {
-  // console.log(token);
   return jwt.verify(token, JWT_SECRET, function (err, decoded) {
     if (err) {
       return false;
     }
-    // console.log(decoded);
     return User.findById(decoded._id).then((user) => {
-      // console.log(Boolean(user));
       return Boolean(user);
     });
   });
