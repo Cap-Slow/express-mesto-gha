@@ -1,19 +1,15 @@
-const mongoose = require('mongoose');
 const Card = require('../models/card');
+const NotFoundError = require('../utils/errors/notFoundError');
+const ForbiddenError = require('../utils/errors/forbiddenError');
 
 const {
   OK_CODE,
   CREATED_CODE,
-  BAD_REQUEST_CODE,
-  NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
-  FORBIDDEN_CODE,
   SERVER_ERROR_MESSAGE,
-  BAD_REQUEST_CARD_MESSAGE,
   NOT_FOUND_CARDID,
   FORBIDDEN_CARD_DELETE_MESSAGE,
 } = require('../utils/constants');
-const card = require('../models/card');
 
 function getCards(req, res) {
   return Card.find({})
@@ -23,67 +19,42 @@ function getCards(req, res) {
       res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
     });
 }
-function createCard(req, res) {
+
+function createCard(req, res, next) {
   const { name, link } = req.body;
   return Card.create({ name, link, owner: req.user._id })
-
     .then((card) => {
       const cardWithoutVersion = card.toObject();
       delete cardWithoutVersion.__v;
       return res.status(CREATED_CODE).send(cardWithoutVersion);
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(BAD_REQUEST_CODE).send({
-          message: `${Object.values(err.errors)
-            .map((error) => error.message)
-            .join(', ')}`,
-        });
-        return;
-      }
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
+    .catch(next);
 }
 
-async function deleteCard(req, res) {
+function deleteCard(req, res, next) {
   const { cardId } = req.params;
-  const cardOwner = await Card.findById(cardId)
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
-        return;
+        throw new NotFoundError(NOT_FOUND_CARDID);
       }
-      return card.owner;
+      if (card.owner != req.user._id) {
+        throw new ForbiddenError(FORBIDDEN_CARD_DELETE_MESSAGE);
+      }
     })
-    .catch(() => {
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
-  if (cardOwner != req.user._id) {
-    res.status(FORBIDDEN_CODE).send({
-      message: FORBIDDEN_CARD_DELETE_MESSAGE,
-    });
-    return;
-  }
-  return Card.findByIdAndRemove(cardId)
+    .then(() => {
+      return Card.findByIdAndRemove(cardId);
+    })
     .then((card) => {
       if (!card) {
-        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
-        return;
+        throw new NotFoundError(NOT_FOUND_CARDID);
       }
       res.status(OK_CODE).send({ message: 'Карточка удалена' });
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(BAD_REQUEST_CODE).send({
-          message: BAD_REQUEST_CARD_MESSAGE,
-        });
-        return;
-      }
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
+    .catch(next);
 }
 
-async function addCardLike(req, res) {
+function addCardLike(req, res, next) {
   const { cardId } = req.params;
   return Card.findByIdAndUpdate(
     cardId,
@@ -93,23 +64,14 @@ async function addCardLike(req, res) {
     .select('-__v')
     .then((card) => {
       if (!card) {
-        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
-        return;
+        throw new NotFoundError(NOT_FOUND_CARDID);
       }
       res.status(OK_CODE).send(card);
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(BAD_REQUEST_CODE).send({
-          message: BAD_REQUEST_CARD_MESSAGE,
-        });
-        return;
-      }
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
+    .catch(next);
 }
 
-function removeCardLike(req, res) {
+function removeCardLike(req, res, next) {
   const { cardId } = req.params;
   return Card.findByIdAndUpdate(
     cardId,
@@ -119,20 +81,11 @@ function removeCardLike(req, res) {
     .select('-__v')
     .then((card) => {
       if (!card) {
-        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_CARDID });
-        return;
+        throw new NotFoundError(NOT_FOUND_CARDID);
       }
       res.status(OK_CODE).send(card);
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(BAD_REQUEST_CODE).send({
-          message: BAD_REQUEST_CARD_MESSAGE,
-        });
-        return;
-      }
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
+    .catch(next);
 }
 
 module.exports = {
