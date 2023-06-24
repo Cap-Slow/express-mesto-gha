@@ -1,102 +1,68 @@
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const NotFoundError = require('../utils/errors/notFoundError');
+const UnauthorizedError = require('../utils/errors/unauthorizedError');
 const {
   OK_CODE,
   CREATED_CODE,
-  BAD_REQUEST_CODE,
-  UNAUTHORIZED_CODE,
-  NOT_FOUND_CODE,
-  SERVER_ERROR_CODE,
-  SERVER_ERROR_MESSAGE,
   NOT_FOUND_USERID,
-  BAD_REQUEST_USER_MESSAGE,
   WRONG_CREDENTIALS_MESSAGE,
   JWT_SECRET,
 } = require('../utils/constants');
 
-function getUsers(req, res) {
+function getUsers(req, res, next) {
   return User.find({})
     .select('-__v')
     .then((users) => res.send(users))
-    .catch(() => {
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
+    .catch(next);
 }
 
-function getUserById(req, res) {
-  const userId = req.user._id;
+function getUserById(req, res, next) {
+  console.log(req.params);
+  console.log('this is get user by id');
+  const { userId } = req.params;
   return User.findById(userId)
     .select('-__v')
     .then((user) => {
       if (!user) {
-        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
-        return;
+        throw new NotFoundError(NOT_FOUND_USERID);
       }
       res.status(OK_CODE).send(user);
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(BAD_REQUEST_CODE).send({
-          message: BAD_REQUEST_USER_MESSAGE,
-        });
-        return;
-      }
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
+    .catch(next);
 }
 
-function createUser(req, res) {
+function createUser(req, res, next) {
   const { name, about, avatar, email } = req.body;
-  bcrypt.hash(req.body.password, 10).then((hash) => {
-    return User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    })
-      .then((user) => {
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => {
+      return User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      }).then((user) => {
         const userWithoutVersion = user.toObject();
         delete userWithoutVersion.__v;
         return res.status(CREATED_CODE).send(userWithoutVersion);
-      })
-      .catch((err) => {
-        if (err instanceof mongoose.Error.ValidationError) {
-          res.status(BAD_REQUEST_CODE).send({
-            message: `${Object.values(err.errors)
-              .map((error) => error.message)
-              .join(', ')}`,
-          });
-          return;
-        }
-        res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
       });
-  });
+    })
+    .catch(next);
 }
 function updateDataDecorator(updateFunction) {
-  return function handleErrors(req, res) {
-    return updateFunction(req, res)
+  return function handleErrors(req, res, next) {
+    return updateFunction(req, res, next)
       .select('-__v')
       .then((user) => {
         if (!user) {
-          res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
-          return;
+          throw new NotFoundError(NOT_FOUND_USERID);
         }
         res.status(OK_CODE).send(user);
       })
-      .catch((err) => {
-        if (err instanceof mongoose.Error.ValidationError) {
-          res.status(BAD_REQUEST_CODE).send({
-            message: `${Object.values(err.errors)
-              .map((error) => error.message)
-              .join(', ')}`,
-          });
-          return;
-        }
-        res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-      });
+      .catch(next);
   };
 }
 
@@ -121,46 +87,18 @@ function updateProfile(req) {
 const decoratedUpdateAvatar = updateDataDecorator(updateAvatar);
 const decoratedUpdateProfile = updateDataDecorator(updateProfile);
 
-function getUserInfo(req, res) {
-  const { userId } = req.params;
-  return User.findById({ userId })
-    .select('-__v')
-    .then((user) => {
-      if (!user) {
-        res.status(NOT_FOUND_CODE).send({ message: NOT_FOUND_USERID });
-        return;
-      }
-      res.status(OK_CODE).send(user);
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(BAD_REQUEST_CODE).send({
-          message: BAD_REQUEST_USER_MESSAGE,
-        });
-        return;
-      }
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
-    });
-}
-
-function login(req, res) {
+function login(req, res, next) {
   const { email, password } = req.body;
 
   User.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
-        res
-          .status(UNAUTHORIZED_CODE)
-          .send({ message: WRONG_CREDENTIALS_MESSAGE });
-        return;
+        throw new UnauthorizedError(WRONG_CREDENTIALS_MESSAGE);
       }
       bcrypt.compare(password, user.password, function (err, isPasswordMatch) {
         if (!isPasswordMatch) {
-          res
-            .status(UNAUTHORIZED_CODE)
-            .send({ message: WRONG_CREDENTIALS_MESSAGE });
-          return;
+          throw new UnauthorizedError(WRONG_CREDENTIALS_MESSAGE);
         }
         const _id = user._id;
         const token = jwt.sign({ _id }, JWT_SECRET, {
@@ -175,9 +113,20 @@ function login(req, res) {
           .end();
       });
     })
-    .catch((err) => {
-      res.status(UNAUTHORIZED_CODE).send({ message: err.message });
-    });
+    .catch(next);
+}
+
+function getUserInfo(req, res, next) {
+  const userId = req.user._id;
+  return User.findById(userId)
+    .select('-__v')
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError(NOT_FOUND_USERID);
+      }
+      res.status(OK_CODE).send(user);
+    })
+    .catch(next);
 }
 
 module.exports = {
