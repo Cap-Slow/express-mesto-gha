@@ -9,7 +9,7 @@ const {
   VALIDATION_ERR_MESSAGE,
 } = require('../utils/constants');
 
-module.exports = (err, req, res) => {
+module.exports = (err, req, res, next) => {
   const { statusCode = SERVER_ERR_CODE, message = SERVER_ERR_MESSAGE } = err;
   if (err.code === CELEBRATE_CONFLICT_CODE) {
     res.status(CONFLICT_CODE).send({ message: EXISTING_EMAIL_MESSAGE });
