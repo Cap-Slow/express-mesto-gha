@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
-const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 const NotFoundError = require('../utils/errors/notFoundError');
 const UnauthorizedError = require('../utils/errors/unauthorizedError');
 const {
@@ -19,8 +19,6 @@ function getUsers(req, res, next) {
 }
 
 function getUserById(req, res, next) {
-  console.log(req.params);
-  console.log('this is get user by id');
   const { userId } = req.params;
   return User.findById(userId)
     .select('-__v')
@@ -37,8 +35,8 @@ function createUser(req, res, next) {
   const { name, about, avatar, email } = req.body;
   bcrypt
     .hash(req.body.password, 10)
-    .then((hash) => {
-      return User.create({
+    .then((hash) =>
+      User.create({
         name,
         about,
         avatar,
@@ -48,8 +46,8 @@ function createUser(req, res, next) {
         const userWithoutVersion = user.toObject();
         delete userWithoutVersion.__v;
         return res.status(CREATED_CODE).send(userWithoutVersion);
-      });
-    })
+      })
+    )
     .catch(next);
 }
 function updateDataDecorator(updateFunction) {
@@ -96,11 +94,11 @@ function login(req, res, next) {
       if (!user) {
         throw new UnauthorizedError(WRONG_CREDENTIALS_MESSAGE);
       }
-      bcrypt.compare(password, user.password, function (err, isPasswordMatch) {
+      bcrypt.compare(password, user.password, (err, isPasswordMatch) => {
         if (!isPasswordMatch) {
           throw new UnauthorizedError(WRONG_CREDENTIALS_MESSAGE);
         }
-        const _id = user._id;
+        const { _id } = user;
         const token = jwt.sign({ _id }, JWT_SECRET, {
           expiresIn: '7d',
         });

@@ -8,13 +8,13 @@ const {
 
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
-  jwt.verify(token, JWT_SECRET, function (err, decoded) {
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
       return false;
     }
-    const isUserExist = User.findById(decoded._id).then((user) => {
-      return Boolean(user);
-    });
+    const isUserExist = User.findById(decoded._id).then((user) =>
+      Boolean(user)
+    );
     if (!isUserExist) {
       res.status(UNAUTHORIZED_CODE).send({ message: UNAUTHORIZED_MESSAGE });
       return;

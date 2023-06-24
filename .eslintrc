@@ -3,6 +3,13 @@
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id", "__v"] }],
     "comma-dangle": ["error", "only-multiline"],
-    "import/no-extraneous-dependencies": ["error", {"Dependencies": true}]
+    "import/no-extraneous-dependencies": [
+      "error",
+      {"devDependencies": true}
+    ],
+    "implicit-arrow-linebreak": "off",
+    "object-curly-newline": "off",
+    "function-paren-newline": "off",
+    "consistent-return": "off"
   }
 }

@@ -5,8 +5,8 @@ const ForbiddenError = require('../utils/errors/forbiddenError');
 const {
   OK_CODE,
   CREATED_CODE,
-  SERVER_ERROR_CODE,
-  SERVER_ERROR_MESSAGE,
+  SERVER_ERR_CODE,
+  SERVER_ERR_MESSAGE,
   NOT_FOUND_CARDID,
   FORBIDDEN_CARD_DELETE_MESSAGE,
 } = require('../utils/constants');
@@ -16,7 +16,7 @@ function getCards(req, res) {
     .select('-__v')
     .then((cards) => res.status(OK_CODE).send(cards))
     .catch(() => {
-      res.status(SERVER_ERROR_CODE).send({ message: SERVER_ERROR_MESSAGE });
+      res.status(SERVER_ERR_CODE).send({ message: SERVER_ERR_MESSAGE });
     });
 }
 
