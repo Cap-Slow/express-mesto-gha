@@ -8,7 +8,7 @@ const routes = require('./routes');
 const handleErrors = require('./middlewares/handleErrors');
 
 const { PORT = 3000, DATABASE_PATH } = process.env;
-mongoose.connect(DATABASE_PATH, {
+mongoose.connect(DATABASE_PATH || 'mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
 
