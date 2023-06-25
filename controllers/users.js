@@ -9,6 +9,7 @@ const {
   NOT_FOUND_USERID,
   WRONG_CREDENTIALS_MESSAGE,
   JWT_SECRET,
+  AUTH_SUCCESS_MESSAGE,
 } = require('../utils/constants');
 
 function getUsers(req, res, next) {
@@ -109,7 +110,8 @@ function login(req, res, next) {
             httpOnly: true,
             sameSite: true,
           })
-          .end();
+          .status(OK_CODE)
+          .send({ message: AUTH_SUCCESS_MESSAGE });
       });
     })
     .catch(next);
