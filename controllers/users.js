@@ -8,9 +8,10 @@ const {
   CREATED_CODE,
   NOT_FOUND_USERID,
   WRONG_CREDENTIALS_MESSAGE,
-  JWT_SECRET,
   AUTH_SUCCESS_MESSAGE,
 } = require('../utils/constants');
+
+const { JWT_SECRET } = process.env;
 
 function getUsers(req, res, next) {
   return User.find({})
@@ -89,30 +90,31 @@ const decoratedUpdateProfile = updateDataDecorator(updateProfile);
 
 function login(req, res, next) {
   const { email, password } = req.body;
-
+  let _id;
   User.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
         throw new UnauthorizedError(WRONG_CREDENTIALS_MESSAGE);
       }
-      bcrypt.compare(password, user.password, (err, isPasswordMatch) => {
-        if (!isPasswordMatch) {
-          throw new UnauthorizedError(WRONG_CREDENTIALS_MESSAGE);
-        }
-        const { _id } = user;
-        const token = jwt.sign({ _id }, JWT_SECRET, {
-          expiresIn: '7d',
-        });
-        res
-          .cookie('jwt', token, {
-            maxAge: 3600000 * 24 * 7,
-            httpOnly: true,
-            sameSite: true,
-          })
-          .status(OK_CODE)
-          .send({ message: AUTH_SUCCESS_MESSAGE });
+      _id = user._id;
+      return bcrypt.compare(password, user.password);
+    })
+    .then((isPasswordMatch) => {
+      if (!isPasswordMatch) {
+        throw new UnauthorizedError(WRONG_CREDENTIALS_MESSAGE);
+      }
+      const token = jwt.sign({ _id }, JWT_SECRET, {
+        expiresIn: '7d',
       });
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+        })
+        .status(OK_CODE)
+        .send({ message: AUTH_SUCCESS_MESSAGE });
     })
     .catch(next);
 }
