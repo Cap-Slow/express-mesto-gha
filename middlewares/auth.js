@@ -1,25 +1,25 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const {
-  UNAUTHORIZED_CODE,
-  UNAUTHORIZED_MESSAGE,
-  JWT_SECRET,
-} = require('../utils/constants');
+const { UNAUTHORIZED_MESSAGE, JWT_SECRET } = require('../utils/constants');
+const UnauthorizedError = require('../utils/errors/forbiddenError');
 
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
+  if (!token) {
+    throw new UnauthorizedError(UNAUTHORIZED_MESSAGE);
+  }
+  let payload;
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
-      return false;
+      throw new UnauthorizedError(UNAUTHORIZED_MESSAGE);
     }
-    const isUserExist = User.findById(decoded._id).then((user) =>
-      Boolean(user)
-    );
-    if (!isUserExist) {
-      res.status(UNAUTHORIZED_CODE).send({ message: UNAUTHORIZED_MESSAGE });
-      return;
-    }
-    req.user = { _id: decoded._id };
+    payload = decoded;
+    return payload;
   });
+  const isUserExist = User.findById(payload._id).then((user) => Boolean(user));
+  if (!isUserExist) {
+    throw new UnauthorizedError(UNAUTHORIZED_MESSAGE);
+  }
+  req.user = { _id: payload._id };
   next();
 };
