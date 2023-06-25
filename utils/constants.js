@@ -17,7 +17,6 @@ const WRONG_CREDENTIALS_MESSAGE = 'Неправильные почта или п
 const FORBIDDEN_CARD_DELETE_MESSAGE = 'Нельзя удалять чужие карточки.';
 const EXISTING_EMAIL_MESSAGE = 'Пользователь с таким email уже существует.';
 const AUTH_SUCCESS_MESSAGE = 'Успешная авторизация.';
-const JWT_SECRET = '$2a$10$gOXyY6P9lOuZC.LUd8reVegJIe0veD4GSnnKHJEyj/T1u';
 module.exports = {
   OK_CODE,
   CREATED_CODE,
@@ -32,7 +31,6 @@ module.exports = {
   NOT_FOUND_USERID,
   NOT_FOUND_CARDID,
   NOT_FOUND_ROUTE,
-  JWT_SECRET,
   UNAUTHORIZED_MESSAGE,
   WRONG_CREDENTIALS_MESSAGE,
   FORBIDDEN_CARD_DELETE_MESSAGE,
