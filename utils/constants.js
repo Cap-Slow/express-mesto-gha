@@ -10,12 +10,13 @@ const SERVER_ERR_CODE = 500;
 const SERVER_ERR_MESSAGE = 'На сервере произошла ошибка.';
 const NOT_FOUND_USERID = 'Пользователь с указанным id не найден.';
 const NOT_FOUND_CARDID = 'Карточка с указанным id не найдена.';
-const NOT_FOUND_ROUTE = 'Запрашиваемый ресурс не найден';
-const VALIDATION_ERR_MESSAGE = 'Ошибка валидации';
-const UNAUTHORIZED_MESSAGE = 'Нет доступа';
-const WRONG_CREDENTIALS_MESSAGE = 'Неправильные почта или пароль';
-const FORBIDDEN_CARD_DELETE_MESSAGE = 'Нельзя удалять чужие карточки';
-const EXISTING_EMAIL_MESSAGE = 'Пользователь с таким email уже существует';
+const NOT_FOUND_ROUTE = 'Запрашиваемый ресурс не найден.';
+const VALIDATION_ERR_MESSAGE = 'Ошибка валидации.';
+const UNAUTHORIZED_MESSAGE = 'Нет доступа.';
+const WRONG_CREDENTIALS_MESSAGE = 'Неправильные почта или пароль.';
+const FORBIDDEN_CARD_DELETE_MESSAGE = 'Нельзя удалять чужие карточки.';
+const EXISTING_EMAIL_MESSAGE = 'Пользователь с таким email уже существует.';
+const AUTH_SUCCESS_MESSAGE = 'Успешная авторизация.';
 const JWT_SECRET = '$2a$10$gOXyY6P9lOuZC.LUd8reVegJIe0veD4GSnnKHJEyj/T1u';
 module.exports = {
   OK_CODE,
@@ -37,4 +38,5 @@ module.exports = {
   FORBIDDEN_CARD_DELETE_MESSAGE,
   EXISTING_EMAIL_MESSAGE,
   VALIDATION_ERR_MESSAGE,
+  AUTH_SUCCESS_MESSAGE,
 };
