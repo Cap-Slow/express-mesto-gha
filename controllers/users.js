@@ -45,6 +45,7 @@ function createUser(req, res, next) {
       }).then((user) => {
         const userWithoutVersion = user.toObject();
         delete userWithoutVersion.__v;
+        delete userWithoutVersion.password;
         return res.status(CREATED_CODE).send(userWithoutVersion);
       })
     )
