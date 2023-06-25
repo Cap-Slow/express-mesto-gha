@@ -38,7 +38,7 @@ function deleteCard(req, res, next) {
       if (!card) {
         throw new NotFoundError(NOT_FOUND_CARDID);
       }
-      if (card.owner !== req.user._id) {
+      if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError(FORBIDDEN_CARD_DELETE_MESSAGE);
       }
     })
