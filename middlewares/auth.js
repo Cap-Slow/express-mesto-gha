@@ -11,7 +11,7 @@ module.exports = (req, res, next) => {
     throw new UnauthorizedError(UNAUTHORIZED_MESSAGE);
   }
   let payload;
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+  jwt.verify(token, JWT_SECRET || 'some-secret-key', (err, decoded) => {
     if (err) {
       throw new UnauthorizedError(UNAUTHORIZED_MESSAGE);
     }

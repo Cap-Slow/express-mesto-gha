@@ -104,7 +104,7 @@ function login(req, res, next) {
       if (!isPasswordMatch) {
         throw new UnauthorizedError(WRONG_CREDENTIALS_MESSAGE);
       }
-      const token = jwt.sign({ _id }, JWT_SECRET, {
+      const token = jwt.sign({ _id }, JWT_SECRET || 'some-secret-key', {
         expiresIn: '7d',
       });
       res
